@@ -31,6 +31,13 @@ const validateRule = (rule: unknown, index: number, errors: string[]): rule is R
     }
     if (!isString(rule.match.value) || !rule.match.value) {
       errors.push(`rules[${index}].match.value must be a non-empty string`);
+    } else if (rule.match.type === 'regex') {
+      try {
+        new RegExp(rule.match.value);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'invalid regex';
+        errors.push(`rules[${index}].match.value is not a valid regex: ${message}`);
+      }
     }
   }
   if (!Array.isArray(rule.targets) || rule.targets.length === 0) {
@@ -52,6 +59,12 @@ const validateRule = (rule: unknown, index: number, errors: string[]): rule is R
   if (rule.template !== undefined && !isString(rule.template)) {
     errors.push(`rules[${index}].template must be a string`);
   }
+  if (!isNumber(rule.priority)) {
+    errors.push(`rules[${index}].priority must be a number`);
+  }
+  if (!isBoolean(rule.stopOnMatch)) {
+    errors.push(`rules[${index}].stopOnMatch must be a boolean`);
+  }
   return true;
 };
 
@@ -64,8 +77,8 @@ export const validateConfig = (value: unknown): { ok: boolean; errors: string[] 
   if (!isBoolean(value.enabled)) {
     errors.push('enabled must be a boolean');
   }
-  if (!isRecord(value.bot) || !isString(value.bot.selfId)) {
-    errors.push('bot.selfId must be a string');
+  if (!isRecord(value.bot) || !isString(value.bot.selfId) || !value.bot.selfId) {
+    errors.push('bot.selfId must be a non-empty string');
   }
   if (!isRecord(value.auth)) {
     errors.push('auth must be an object');
@@ -75,12 +88,27 @@ export const validateConfig = (value: unknown): { ok: boolean; errors: string[] 
     }
     if (!isString(value.auth.token)) {
       errors.push('auth.token must be a string');
+    } else if (value.auth.enabled === true && !value.auth.token.trim()) {
+      errors.push('auth.token must be a non-empty string when auth.enabled is true');
     }
     if (value.auth.location !== 'header' && value.auth.location !== 'query') {
       errors.push('auth.location must be header or query');
     }
     if (!isString(value.auth.fieldName) || !value.auth.fieldName) {
       errors.push('auth.fieldName must be a non-empty string');
+    }
+  }
+
+  if (!isRecord(value.ipAllowlist)) {
+    errors.push('ipAllowlist must be an object');
+  } else {
+    if (!isBoolean(value.ipAllowlist.enabled)) {
+      errors.push('ipAllowlist.enabled must be a boolean');
+    }
+    if (!Array.isArray(value.ipAllowlist.ips)) {
+      errors.push('ipAllowlist.ips must be an array');
+    } else if (value.ipAllowlist.ips.some((ip) => !isString(ip) || !ip.trim())) {
+      errors.push('ipAllowlist.ips must be an array of non-empty strings');
     }
   }
 
@@ -131,6 +159,16 @@ export const validateConfig = (value: unknown): { ok: boolean; errors: string[] 
   } else {
     value.rules.forEach((rule, index) => {
       validateRule(rule, index, errors);
+    });
+    const seen = new Set<string>();
+    value.rules.forEach((rule, index) => {
+      if (isRecord(rule) && isString(rule.id)) {
+        if (seen.has(rule.id)) {
+          errors.push(`rules[${index}].id must be unique`);
+        } else {
+          seen.add(rule.id);
+        }
+      }
     });
   }
 

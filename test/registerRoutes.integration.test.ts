@@ -37,7 +37,9 @@ describe('registerRoutes', () => {
           name: 'match route',
           enabled: true,
           match: { type: 'equals', value: 'alpha' },
-          targets: [{ type: 'friend', id: '123' }]
+          targets: [{ type: 'friend', id: '123' }],
+          priority: 100,
+          stopOnMatch: false
         }
       ]
     };

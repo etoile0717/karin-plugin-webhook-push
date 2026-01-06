@@ -3,13 +3,17 @@ import type { PluginConfig } from '../server/types.js';
 export const defaultConfig: PluginConfig = {
   enabled: true,
   bot: {
-    selfId: ''
+    selfId: 'YOUR_BOT_ID'
   },
   auth: {
     enabled: true,
-    token: '',
+    token: 'CHANGE_ME',
     location: 'header',
     fieldName: 'X-Webhook-Token'
+  },
+  ipAllowlist: {
+    enabled: false,
+    ips: []
   },
   routeKey: {
     location: 'header',

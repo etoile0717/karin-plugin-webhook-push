@@ -1,14 +1,31 @@
 import { defineConfig } from 'node-karin';
 import { defaultConfig } from '../config/defaultConfig.js';
+import { normalizeConfig } from '../config/normalizeConfig.js';
 import { validateConfig } from '../config/schema.js';
 
 const validateRules = (value: string): { ok: boolean; message?: string } => {
   try {
     const parsed = JSON.parse(value) as unknown;
-    const config = { ...defaultConfig, rules: parsed };
-    const result = validateConfig(config);
+    const normalized = normalizeConfig({ ...defaultConfig, rules: parsed });
+    const result = validateConfig(normalized.config);
     if (!result.ok) {
       return { ok: false, message: result.errors.join('; ') };
+    }
+    return { ok: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'invalid json';
+    return { ok: false, message };
+  }
+};
+
+const validateIpList = (value: string): { ok: boolean; message?: string } => {
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (!Array.isArray(parsed)) {
+      return { ok: false, message: 'must be an array of IP strings' };
+    }
+    if (parsed.some((ip) => typeof ip !== 'string' || !ip.trim())) {
+      return { ok: false, message: 'all IPs must be non-empty strings' };
     }
     return { ok: true };
   } catch (error) {
@@ -62,6 +79,19 @@ export default defineConfig({
       label: 'Token 字段名',
       component: 'input',
       defaultValue: defaultConfig.auth.fieldName
+    },
+    {
+      field: 'ipAllowlist.enabled',
+      label: 'IP 白名单启用',
+      component: 'switch',
+      defaultValue: defaultConfig.ipAllowlist.enabled
+    },
+    {
+      field: 'ipAllowlist.ips',
+      label: '允许的 IP 列表 (JSON 数组)',
+      component: 'json',
+      defaultValue: JSON.stringify(defaultConfig.ipAllowlist.ips, null, 2),
+      validator: validateIpList
     },
     {
       field: 'routeKey.location',

@@ -21,6 +21,8 @@ export interface Rule {
   match: RuleMatch;
   targets: Target[];
   template?: string;
+  priority: number;
+  stopOnMatch: boolean;
 }
 
 export interface AuthConfig {
@@ -42,6 +44,11 @@ export interface RateLimitConfig {
   max: number;
 }
 
+export interface IpAllowlistConfig {
+  enabled: boolean;
+  ips: string[];
+}
+
 export interface DebugConfig {
   requireKarinAuth: boolean;
 }
@@ -54,6 +61,7 @@ export interface PluginConfig {
   enabled: boolean;
   bot: BotConfig;
   auth: AuthConfig;
+  ipAllowlist: IpAllowlistConfig;
   routeKey: RouteKeyConfig;
   bodyLimitBytes: number;
   maxMessageChars: number;
