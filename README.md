@@ -177,6 +177,11 @@ npm config set registry https://registry.npmjs.org
 
 > 注意：不要把 `.npmrc` 提交到仓库。
 
+## CI & Lockfile
+
+- 本项目使用 npm，并提交 `package-lock.json`。
+- CI 使用 `npm ci` 以确保可复现构建，并启用 npm cache。
+
 ## 本地开发与测试
 
 ```bash
