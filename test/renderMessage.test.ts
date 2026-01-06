@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { renderMessage } from '../src/server/render/renderMessage.js';
+import { adapters } from '../src/server/adapters/index.js';
 
 describe('renderMessage', () => {
   it('renders default template', () => {
@@ -23,5 +24,26 @@ describe('renderMessage', () => {
       template: 'Route={{routeKey}} {{summary}}'
     });
     expect(message).toBe('Route=beta ping');
+  });
+
+  it('prefers adapter summary when available', () => {
+    const adapter = {
+      name: 'test',
+      canHandle: () => true,
+      summarize: () => 'adapter summary'
+    };
+    adapters.unshift(adapter);
+    try {
+      const message = renderMessage({
+        routeKey: 'gamma',
+        payload: { message: 'fallback' },
+        bodyText: 'payload',
+        isJson: false,
+        maxMessageChars: 200
+      });
+      expect(message).toContain('adapter summary');
+    } finally {
+      adapters.shift();
+    }
   });
 });

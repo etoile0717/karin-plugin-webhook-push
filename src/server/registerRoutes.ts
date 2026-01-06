@@ -9,6 +9,7 @@ import type { PluginConfig, SendResult, Target } from './types.js';
 import { RequestError } from '../utils/errors.js';
 import { consoleLogger, type Logger } from '../utils/logger.js';
 import { truncate } from '../utils/string.js';
+import { isIpAllowed, normalizeIp } from './security/ipAllowlist.js';
 
 export interface Contact {
   peer: string;
@@ -46,6 +47,11 @@ const createRateLimiter = () => {
     buckets.set(ip, { tokens: tokens - 1, last: now });
     return true;
   };
+};
+
+const getClientIp = (req: Request): string | undefined => {
+  const ip = req.ip ?? req.socket.remoteAddress;
+  return ip ? normalizeIp(ip) : undefined;
 };
 
 const getAuthToken = (req: Request, config: PluginConfig): string | undefined => {
@@ -124,7 +130,11 @@ export const registerRoutes = (app: Application, deps: RegisterDeps, store: Conf
       if (!config.enabled) {
         throw new RequestError(403, 'PLUGIN_DISABLED', 'plugin is disabled');
       }
-      if (!rateLimiter(req.ip || 'unknown', config)) {
+      const clientIp = getClientIp(req);
+      if (!isIpAllowed(config.ipAllowlist, clientIp)) {
+        throw new RequestError(403, 'IP_NOT_ALLOWED', 'ip not allowed');
+      }
+      if (!rateLimiter(clientIp ?? 'unknown', config)) {
         throw new RequestError(429, 'RATE_LIMITED', 'rate limited');
       }
       if (config.auth.enabled) {
