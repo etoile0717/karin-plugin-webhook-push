@@ -1,0 +1,44 @@
+{
+  "name": "karin-plugin-webhook-push",
+  "version": "0.1.0",
+  "description": "Karin v1.x plugin to receive webhooks and push messages to QQ friends or groups.",
+  "type": "module",
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "config"
+  ],
+  "engines": {
+    "karin": ">=1.14.1"
+  },
+  "karin": {
+    "main": "src/index.ts",
+    "web": "dist/web.config.js",
+    "ts-web": "src/web/web.config.ts",
+    "files": [
+      "config"
+    ]
+  },
+  "scripts": {
+    "build": "tsup",
+    "lint": "eslint . --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.12.7",
+    "@types/supertest": "^2.0.16",
+    "@typescript-eslint/eslint-plugin": "^7.7.1",
+    "@typescript-eslint/parser": "^7.7.1",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "express": "^4.19.2",
+    "prettier": "^3.2.5",
+    "supertest": "^6.3.4",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5",
+    "vitest": "^1.5.0"
+  },
+  "license": "MIT"
+}
