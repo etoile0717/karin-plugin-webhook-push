@@ -54,26 +54,24 @@ const getClientIp = (req: Request): string | undefined => {
   return ip ? normalizeIp(ip) : undefined;
 };
 
+const pickFirstString = (value: unknown): string | undefined => {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value.find((entry): entry is string => typeof entry === 'string');
+  }
+  return undefined;
+};
+
 const getAuthToken = (req: Request, config: PluginConfig): string | undefined => {
   if (config.auth.location === 'header') {
     const headerValue = req.headers[config.auth.fieldName.toLowerCase()] ??
       req.headers[config.auth.fieldName];
-    if (typeof headerValue === 'string') {
-      return headerValue;
-    }
-    if (Array.isArray(headerValue)) {
-      return headerValue[0];
-    }
-    return undefined;
+    return pickFirstString(headerValue);
   }
   const queryValue = req.query[config.auth.fieldName];
-  if (typeof queryValue === 'string') {
-    return queryValue;
-  }
-  if (Array.isArray(queryValue)) {
-    return queryValue[0];
-  }
-  return undefined;
+  return pickFirstString(queryValue);
 };
 
 const buildBodyText = (body: { raw: string; json: unknown | null; isJson: boolean }): string => {

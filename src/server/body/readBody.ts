@@ -3,12 +3,12 @@ import { RequestError } from '../../utils/errors.js';
 import type { ReadBodyResult } from '../types.js';
 
 const getContentType = (req: IncomingMessage): string => {
-  const header = req.headers['content-type'];
+  const header = req.headers['content-type'] as string | string[] | undefined;
   if (typeof header === 'string') {
     return header;
   }
   if (Array.isArray(header) && header.length > 0) {
-    return header[0];
+    return header[0] ?? '';
   }
   return '';
 };
