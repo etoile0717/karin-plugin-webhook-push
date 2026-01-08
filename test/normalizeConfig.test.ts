@@ -41,8 +41,13 @@ describe('normalizeConfig', () => {
     const normalized = normalizeConfig(input);
 
     expect(normalized.config.ipAllowlist.enabled).toBe(false);
-    expect(normalized.config.rules[0].priority).toBe(100);
-    expect(normalized.config.rules[0].stopOnMatch).toBe(false);
+    const rule = normalized.config.rules[0];
+    expect(rule).toBeDefined();
+    if (!rule) {
+      throw new Error('expected at least one rule');
+    }
+    expect(rule.priority).toBe(100);
+    expect(rule.stopOnMatch).toBe(false);
     expect(normalized.migrated).toBe(true);
   });
 });

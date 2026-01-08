@@ -1,7 +1,5 @@
-import type { Application, Request, Response, NextFunction } from 'express';
-
 declare module 'node-karin' {
-  export const app: Application;
+  export const app: import('express').Application;
 
   export interface Contact {
     peer: string;
@@ -13,11 +11,17 @@ declare module 'node-karin' {
 
   export const sendMsg: (selfId: string, contact: Contact, elements: string) => Promise<void>;
 
-  export const authMiddleware: (req: Request, res: Response, next: NextFunction) => void;
+  export const authMiddleware: (
+    req: import('express').Request,
+    res: import('express').Response,
+    next: import('express').NextFunction
+  ) => void;
 
   export const logger: {
     info(message: string, meta?: Record<string, unknown>): void;
     warn(message: string, meta?: Record<string, unknown>): void;
     error(message: string, meta?: Record<string, unknown>): void;
   };
+
+  export const defineConfig: <T>(config: T) => T;
 }

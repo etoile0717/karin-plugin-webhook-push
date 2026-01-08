@@ -10,7 +10,7 @@ import { buildConfigPath, defaultPluginName, normalizePluginName } from './plugi
 
 const findPackageJson = async (startDir: string): Promise<string | null> => {
   let current = startDir;
-  while (true) {
+  while (current) {
     const candidate = path.join(current, 'package.json');
     try {
       await fs.access(candidate);
@@ -22,10 +22,11 @@ const findPackageJson = async (startDir: string): Promise<string | null> => {
     }
     const parent = path.dirname(current);
     if (parent === current) {
-      return null;
+      break;
     }
     current = parent;
   }
+  return null;
 };
 
 const readPackageName = async (packagePath: string): Promise<string | undefined> => {
