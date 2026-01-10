@@ -10,7 +10,7 @@ export default defineConfig([
     outDir: 'dist'
   },
   {
-    entry: ['src/web/web.config.ts'],
+    entry: ['src/web.config.ts'],
     format: ['esm'],
     dts: false,
     sourcemap: true,

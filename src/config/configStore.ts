@@ -56,6 +56,15 @@ export class ConfigStore {
   private cached: PluginConfig | null = null;
   private cachedMtime = 0;
 
+  async saveConfig(config: PluginConfig): Promise<void> {
+    const configPath = await resolveConfigPath();
+    await fs.mkdir(path.dirname(configPath), { recursive: true });
+    await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
+    const stats = await fs.stat(configPath);
+    this.cached = config;
+    this.cachedMtime = stats.mtimeMs;
+  }
+
   async getConfig(): Promise<PluginConfig> {
     const configPath = await resolveConfigPath();
     await fs.mkdir(path.dirname(configPath), { recursive: true });
