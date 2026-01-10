@@ -14,7 +14,7 @@
   "karin": {
     "main": "src/index.ts",
     "web": "dist/web.config.js",
-    "ts-web": "src/web/web.config.ts",
+    "ts-web": "src/web.config.ts",
     "files": [
       "config"
     ]
